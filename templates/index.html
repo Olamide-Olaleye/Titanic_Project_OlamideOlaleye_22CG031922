@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Predictor</title>
+    <style>
+        body { font-family: sans-serif; background-color: #eef2f3; padding: 20px; text-align: center; }
+        .container { background: white; max-width: 500px; margin: auto; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; }
+        select, input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background-color: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #2980b9; }
+        .result { margin-top: 20px; font-weight: bold; color: #2c3e50; font-size: 1.2rem; }
+        label { display: block; text-align: left; margin-left: 5%; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Titanic Survival Prediction</h1>
+        <p>Enter passenger details:</p>
+
+        <form action="/predict" method="post">
+            <label>Ticket Class (1 = 1st, 3 = 3rd)</label>
+            <select name="Pclass" required>
+                <option value="1">1st Class</option>
+                <option value="2">2nd Class</option>
+                <option value="3">3rd Class</option>
+            </select>
+
+            <label>Sex</label>
+            <select name="Sex" required>
+                <option value="0">Male</option>
+                <option value="1">Female</option>
+            </select>
+
+            <label>Age</label>
+            <input type="number" name="Age" step="0.1" placeholder="e.g. 29" required>
+
+            <label>Siblings/Spouses Aboard</label>
+            <input type="number" name="SibSp" value="0" required>
+
+            <label>Parents/Children Aboard</label>
+            <input type="number" name="Parch" value="0" required>
+
+            <label>Fare ($)</label>
+            <input type="number" name="Fare" step="0.01" placeholder="e.g. 50.00" required>
+
+            <button type="submit">Predict Survival</button>
+        </form>
+
+        <div class="result">
+            {{ prediction_text }}
+        </div>
+    </div>
+
+</body>
+</html>
