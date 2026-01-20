@@ -5,15 +5,15 @@ import os
 
 app = Flask(__name__)
 
-# Load the trained Titanic model (Renamed)
-model_filename = 'titanic_survival_model.pkl'
+# Correct path: Look inside the 'model' folder
+model_path = os.path.join('model', 'titanic_survival_model.pkl')
 
-if os.path.exists(model_filename):
-    with open(model_filename, 'rb') as f:
+# Load Model
+if os.path.exists(model_path):
+    with open(model_path, 'rb') as f:
         model = pickle.load(f)
 else:
-    # Error message updated to reflect new script name 'model_building.py'
-    print(f"Error: '{model_filename}' not found. Please run 'python model_building.py' first.")
+    print(f"Error: Model not found at {model_path}. Run model/model_building.py first.")
     model = None
 
 @app.route('/')
@@ -22,31 +22,38 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    if model is None:
-        return render_template('index.html', prediction_text='Error: Model not loaded.')
+    if not model:
+        return render_template('index.html', prediction_text="Error: Model is missing.")
 
     try:
-        # Extract data from form
+        # 1. Retrieve inputs
         pclass = int(request.form['Pclass'])
-        sex = int(request.form['Sex']) # 0 for male, 1 for female
+        sex = int(request.form['Sex']) # 0 for Male, 1 for Female
         age = float(request.form['Age'])
-        sibsp = int(request.form['SibSp'])
-        parch = int(request.form['Parch'])
         fare = float(request.form['Fare'])
 
-        # Create array for the model
-        features = np.array([[pclass, sex, age, sibsp, parch, fare]])
+        # 2. Prepare features
+        features = np.array([[pclass, sex, age, fare]])
 
-        # Make prediction
-        prediction = model.predict(features)
+        # 3. Predict
+        prediction = model.predict(features)[0]
+        probability = model.predict_proba(features)[0][1] * 100
 
-        # 0 = Did not survive, 1 = Survived
-        output = 'Survived' if prediction[0] == 1 else 'Did Not Survive'
+        # 4. Format Output
+        if prediction == 1:
+            result_text = f"SURVIVED (Probability: {probability:.1f}%)"
+            css_class = "safe"
+        else:
+            result_text = f"DID NOT SURVIVE (Probability: {probability:.1f}%)"
+            css_class = "danger"
 
-        return render_template('index.html', prediction_text='Prediction: The passenger likely {}'.format(output))
+        return render_template('index.html', 
+                             prediction_text=result_text, 
+                             result_class=css_class)
 
     except Exception as e:
-        return render_template('index.html', prediction_text='Error: {}'.format(e))
+        return render_template('index.html', prediction_text=f"Error: {e}")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

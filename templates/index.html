@@ -3,57 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titanic Survival Predictor</title>
+    <title>Titanic Survival AI</title>
     <style>
-        body { font-family: sans-serif; background-color: #eef2f3; padding: 20px; text-align: center; }
-        .container { background: white; max-width: 500px; margin: auto; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; }
-        select, input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-        button { background-color: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #2980b9; }
-        .result { margin-top: 20px; font-weight: bold; color: #2c3e50; font-size: 1.2rem; }
-        label { display: block; text-align: left; margin-left: 5%; font-weight: bold; margin-top: 10px; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 10px; width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h2 { color: #34495e; margin-bottom: 20px; }
+        select, input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #bdc3c7; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #c0392b; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 5px; font-weight: bold; }
+        .safe { background-color: #2ecc71; color: white; }
+        .danger { background-color: #7f8c8d; color: white; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>Titanic Survival Prediction</h1>
-        <p>Enter passenger details:</p>
-
+        <h2>Titanic Predictor</h2>
         <form action="/predict" method="post">
-            <label>Ticket Class (1 = 1st, 3 = 3rd)</label>
+            
+            <label style="float: left; font-size: 0.9em;">Passenger Class</label>
             <select name="Pclass" required>
-                <option value="1">1st Class</option>
-                <option value="2">2nd Class</option>
-                <option value="3">3rd Class</option>
+                <option value="1">1st Class (Rich)</option>
+                <option value="2">2nd Class (Middle)</option>
+                <option value="3">3rd Class (Poor)</option>
             </select>
 
-            <label>Sex</label>
+            <label style="float: left; font-size: 0.9em;">Gender</label>
             <select name="Sex" required>
                 <option value="0">Male</option>
                 <option value="1">Female</option>
             </select>
 
-            <label>Age</label>
-            <input type="number" name="Age" step="0.1" placeholder="e.g. 29" required>
+            <label style="float: left; font-size: 0.9em;">Age</label>
+            <input type="number" name="Age" placeholder="e.g. 25" required>
 
-            <label>Siblings/Spouses Aboard</label>
-            <input type="number" name="SibSp" value="0" required>
+            <label style="float: left; font-size: 0.9em;">Ticket Fare ($)</label>
+            <input type="number" name="Fare" placeholder="e.g. 50" required>
 
-            <label>Parents/Children Aboard</label>
-            <input type="number" name="Parch" value="0" required>
-
-            <label>Fare ($)</label>
-            <input type="number" name="Fare" step="0.01" placeholder="e.g. 50.00" required>
-
-            <button type="submit">Predict Survival</button>
+            <button type="submit">Check Survival</button>
         </form>
 
-        <div class="result">
+        {% if prediction_text %}
+        <div class="result {{ result_class }}">
             {{ prediction_text }}
         </div>
+        {% endif %}
     </div>
-
 </body>
 </html>

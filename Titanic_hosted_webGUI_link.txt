@@ -1,0 +1,6 @@
+Name: Olamide Olaleye
+Matric number: 22CG031922
+Machine learning algorithm used: Random Forest Classifier
+Model persistence model: Pickle.
+url link: https://breastcancer-project-olamideolaleye.onrender.com
+github link: https://github.com/Olamide-Olaleye/Titanic_Project_OlamideOlaleye_22CG031922.git

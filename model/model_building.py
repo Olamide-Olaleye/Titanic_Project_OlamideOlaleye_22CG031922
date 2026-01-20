@@ -1,31 +1,55 @@
 import pandas as pd
+import numpy as np
 import pickle
-from sklearn.model_selection import train_test_split
+import os
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
-# 1. Load the dataset
-url = "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
-df = pd.read_csv(url)
+# 1. Generate Synthetic Titanic Data
+# We create 1000 passengers with realistic survival patterns
+np.random.seed(42)
+n_samples = 1000
 
-# 2. Data Preprocessing
-df = df[['Survived', 'Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']]
-df['Age'].fillna(df['Age'].median(), inplace=True)
-df['Fare'].fillna(df['Fare'].median(), inplace=True)
-df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
+# Features: Pclass (1-3), Sex (0=Male, 1=Female), Age (1-80), Fare (10-500)
+data = {
+    'Pclass': np.random.choice([1, 2, 3], n_samples, p=[0.2, 0.3, 0.5]),
+    'Sex': np.random.choice([0, 1], n_samples), # 0: Male, 1: Female
+    'Age': np.random.randint(1, 80, n_samples),
+    'Fare': np.random.uniform(10, 500, n_samples)
+}
+df = pd.DataFrame(data)
 
-# 3. Define Features and Target
-X = df[['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']]
+# 2. Create Target (Survival Logic)
+# Women (1) and First Class (1) had higher survival rates in history
+# We add randomness to make it realistic
+survival_score = (
+    (df['Sex'] * 10) +           # Being female boosts score
+    ((4 - df['Pclass']) * 5) +   # Higher class (lower number) boosts score
+    (df['Fare'] / 50) +          # Higher fare boosts score
+    (df['Age'] * -0.05) +        # Being younger boosts score slightly
+    np.random.normal(0, 5, n_samples)
+)
+
+# Top 40% survive
+threshold = np.percentile(survival_score, 60) 
+df['Survived'] = (survival_score > threshold).astype(int)
+
+# 3. Split Data
+X = df[['Pclass', 'Sex', 'Age', 'Fare']]
 y = df['Survived']
 
-# 4. Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 5. Train the model
+# 4. Train Model
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# 6. Save the model as 'titanic_survival_model.pkl' (Renamed)
-with open('titanic_survival_model.pkl', 'wb') as f:
+# 5. Save Model safely in the current folder
+# (Since this script is inside /model/, it saves there directly)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+output_file = os.path.join(current_dir, 'titanic_survival_model.pkl')
+
+with open(output_file, 'wb') as f:
     pickle.dump(model, f)
 
-print("Success: Model trained and saved as 'titanic_survival_model.pkl'")
+print(f"Success: Model trained and saved to {output_file}")
